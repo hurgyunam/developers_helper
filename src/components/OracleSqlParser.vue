@@ -3,10 +3,34 @@
         <div class="input-area">
             <textarea v-model="sql"/>
         </div>
+        <select v-model="viewMode">
+            <option value="text">TEXT</option>
+            <option value="table">TABLE</option>
+        </select>
         <div class="output-area">
-            <div class="item" v-for="item in results.queries" :key="item.key">
+            <div class="item" 
+                v-if="viewMode === 'text'"
+                v-for="item in results.queries" :key="item.key">
                 {{ item }}
             </div>
+            <table v-else>
+                <thead>
+                    <tr>
+                        <td>TYPE</td>
+                        <td>TABLE_NAME</td>
+                        <td>TYPE2</td>
+                        <td>TABLE_NAME2</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in results.queries" :key="item.key">
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.tableName }}</td>
+                        <td>{{ item.type2 }}</td>
+                        <td>{{ item.tableName2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
@@ -36,16 +60,40 @@ import { OracleSqlParser } from '../actions/oracle_sql_parser';
         WHERE A.COL_A1 = B.COL_B1;
 
         DELETE FROM TABLE_C
-        WHERE C_ID = 'C_ID2'
+        WHERE C_ID = 'C_ID2';
+
+        SELECT COL_A1, COL_B2, COL_C3
+        FROM (
+            SELECT A.COL_A1, B.COL_B2, C.COL_C3
+            FROM TABLE_A
+            INNER JOIN TABLE_B
+            ON A.C_ID = B.C_ID
+            INNER JOIN TABLE_C
+            ON A.C_ID = C.C_ID
+        ) A
+         WHERE C_ID = 'C_ID3'
     `.trim());
 
     const results = computed(() => {
         return new OracleSqlParser(sql.value);
     })
+
+    const viewMode = ref<"text" | "table">("text")
 </script>
 <style>
     .container textarea {
         width: 80vw;
         height: 10em;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid white;
+        padding: 8px;
+        text-align: left;
     }
 </style>
