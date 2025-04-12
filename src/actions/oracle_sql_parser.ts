@@ -17,7 +17,7 @@ export class OracleParsedQuery {
     readonly tableName2?: string;
     
     constructor(query: string) {
-        const trimQuery = query.replaceAll("\n", " ");
+        const trimQuery = query.replace(/\n/g, " ");
 
         const optType = this.getType(query);
 
